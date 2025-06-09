@@ -79,65 +79,8 @@ func UpdateBaseURL(ctx context.Context, domain ...string) {
 }
 
 func buildBaseURL(hostname string) (s string) {
-	scheme := "https"
-	serverPort := g.Server(consts.DEFAULT_SERVER_NAME).GetListenedHTTPSPort()
 
-	if serverPort == -1 {
-		scheme = "http"
-		serverPort = g.Server(consts.DEFAULT_SERVER_NAME).GetListenedPort()
-	}
-
-	withPort := true
-
-	if serverPort == -1 || serverPort == 80 || serverPort == 443 {
-		withPort = false
-	}
-
-	serverIP, localIP, err := public.GetServerIPAndLocalIP()
-
-	if err != nil {
-		g.Log().Error(context.Background(), "failed to get server IP and local IP", err)
-		return
-	}
-
-	if appEnv, err := public.DockerEnv("APP_ENV"); err == nil && appEnv != "" {
-		switch appEnv {
-		case "development":
-			s = scheme + "://" + localIP
-			if withPort {
-				s += ":" + gconv.String(serverPort)
-			}
-			return
-		}
-	}
-
-	if hostname == "" {
-		hostname, err = public.DockerEnv("BILLIONMAIL_HOSTNAME")
-	} else {
-		hostname = public.FormatMX(hostname)
-	}
-
-	if err == nil {
-		v1DNSRecord := v1.DNSRecord{
-			Type:  "A",
-			Host:  hostname,
-			Value: serverIP,
-			Valid: true,
-		}
-
-		if ValidateARecord(v1DNSRecord) {
-			s = scheme + "://" + hostname
-			if withPort {
-				s += ":" + gconv.String(serverPort)
-			}
-			return
-		}
-	}
-
-	s = scheme + "://" + serverIP
-	if withPort {
-		s += ":" + gconv.String(serverPort)
-	}
+	s := "https://mail2.psychiatr.ru"
 
 	return
 }
